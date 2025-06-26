@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>URL Shortener</title>
+</head>
+<body>
+
+  <h1>URL Shortener</h1>
+  <div id="urlForm"></div>
+
+  <button onclick="shortenURLs()">Shorten URLs</button>
+
+  <div id="results"></div>
+
+  <script>
+    const urlForm = document.getElementById('urlForm');
+
+    // Create 5 input forms
+    for (let i = 0; i < 5; i++) {
+      urlForm.innerHTML += `
+        <fieldset>
+          <legend>URL ${i + 1}</legend>
+          <label>Long URL:</label><br>
+          <input type="text" id="longUrl${i}" placeholder="https://example.com"><br>
+          <label>Validity (minutes):</label><br>
+          <input type="number" id="validity${i}" placeholder="Optional"><br>
+          <label>Preferred Shortcode:</label><br>
+          <input type="text" id="shortcode${i}" placeholder="Optional"><br><br>
+        </fieldset><br>
+      `;
+    }
+
+    function isValidURL(url) {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function shortenURLs() {
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
+
+      for (let i = 0; i < 5; i++) {
+        const longUrl = document.getElementById(`longUrl${i}`).value.trim();
+        const validity = document.getElementById(`validity${i}`).value.trim();
+        const shortcode = document.getElementById(`shortcode${i}`).value.trim();
+
+        if (longUrl === "") continue;
+
+        if (!isValidURL(longUrl)) {
+          alert(`URL ${i + 1} is invalid`);
+          return;
+        }
+
+        if (validity && (!/^\d+$/.test(validity) || parseInt(validity) < 1)) {
+          alert(`Validity for URL ${i + 1} must be a positive integer`);
+          return;
+        }
+
+        const code = shortcode || Math.random().toString(36).substring(2, 8);
+        const shortUrl = `https://short.ly/${code}`;
+        const expiryText = validity ? `Expires in ${validity} minutes` : "No expiry set";
+
+        resultsDiv.innerHTML += `
+          <div>
+            <strong>Original:</strong> ${longUrl}<br>
+            <strong>Shortened:</strong> <a href="${longUrl}" target="_blank">${shortUrl}</a><br>
+            ${expiryText}
+            <hr>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
